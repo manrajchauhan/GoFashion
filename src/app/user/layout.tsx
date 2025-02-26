@@ -1,5 +1,5 @@
 "use client";
-
+import { GeistSans } from 'geist/font/sans';
 import { useState } from "react";
 import "@/app/globals.css";
 import Sidebar from "@/app/components/ui/sidebar";
@@ -15,8 +15,8 @@ export default function DashboardLayout({
 
   return (
     <html>
-      <body>
-        <div className="flex flex-col min-h-screen">
+      <body className={GeistSans.className}>
+        <div className="flex flex-col min-h-screen ">
           {/* Fixed Header */}
           <div className="fixed top-0 left-0 w-full z-10">
             <DasHeader />

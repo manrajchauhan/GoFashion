@@ -6,9 +6,9 @@ export default function AppDemo() {
 
   const dresses = [
     { id: 1, name: "Floral Dress", img: "/dress/flora.webp", color: "Floral", trend: "Summer" },
-    { id: 2, name: "Red Dress", img: "/dress/flora.webp", color: "Red", trend: "Trending" },
-    { id: 3, name: "Black Dress", img: "/dress/flora.webp", color: "Black", trend: "Classic" },
-    { id: 4, name: "Blue Dress", img: "/dress/flora.webp", color: "Blue", trend: "Casual" },
+    { id: 2, name: "Red Dress", img: "/dress/red-saree.webp", color: "Red", trend: "Trending" },
+    { id: 3, name: "Silk Dress", img: "/dress/cotton-silk-girl.jpeg", color: "Black", trend: "Classic" },
+    { id: 4, name: "Silk Dress", img: "/dress/silk-pattern.webp", color: "Blue", trend: "Casual" },
     { id: 5, name: "Summer Dress", img: "/dress/flora.webp", color: "Yellow", trend: "Summer" },
     { id: 6, name: "Casual Dress", img: "/dress/flora.webp", color: "Green", trend: "Casual" }
   ];
@@ -41,7 +41,7 @@ export default function AppDemo() {
           </label>
 
           {/* Filter Fields */}
-          {["Colors", "Trending"].map((label, index) => (
+          {["All", "All"].map((label, index) => (
             <label
               key={index}
               className="flex items-center gap-2 px-4 py-3.5 rounded cursor-pointer h-[54px] w-[140px] max-md:w-[calc(50%_-_6px)] max-sm:w-full"
