@@ -12,8 +12,10 @@ interface User {
 
 
 const links = [
+  { name: 'Dashboard', href: '/user/dashboard', icon: '/icon/dash.svg' },
   { name: 'Settings', href: '/user/settings', icon: '/icon/settings.svg' },
   { name: 'Trash', href: '/user/trash', icon: '/icon/trash.svg' },
+  { name: 'Homepage', href: '/', icon: '/icon/home.svg' },
 
 ];
 
@@ -88,8 +90,10 @@ export default function UserModel() {
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     sessionStorage.removeItem("userData");
-    router.push("/login");
-  };
+    router.push("/");
+    router.refresh();
+};
+
 
   return (
     <div ref={modalRef} className="right-6 top-0 absolute border w-[300px] rounded-xl bg-white shadow ">

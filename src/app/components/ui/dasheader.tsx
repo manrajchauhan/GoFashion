@@ -16,7 +16,7 @@ export default function DasHeader() {
 
   const userIcon = {
     href: "#",
-    imgSrc: "/icon/user.svg",
+    imgSrc: "/icon/user-demo.svg",
     alt: "User",
   };
 
@@ -54,13 +54,13 @@ export default function DasHeader() {
         <ul className="ml-auto flex gap-7 py-2">
 
           <li className="mt-2 cursor-pointer" id="userIcon"onClick={toggleSettingsModal}>
-              <img
-              width={40}
-              height={40}
-                src={userIcon.imgSrc}
-                alt={userIcon.alt}
-                className="bg-neutral-200 lg:inline-flex px-3 pl-3 py-3 leading-none hover:text-black rounded-full hover:bg-neutral-100 transition duration-200 font-semibold ml-4"
-              />
+          <img
+                        width={40}
+                        height={40}
+                          src={userIcon.imgSrc}
+                          alt={userIcon.alt}
+                          className="bg-neutral-200 lg:inline-flex leading-none hover:text-black rounded-full hover:bg-neutral-100 transition duration-200 font-semibold ml-4"
+                        />
           </li>
 
           {isSettingsModalOpen && (

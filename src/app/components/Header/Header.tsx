@@ -4,12 +4,33 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
+import UserModel from '../models/UserModel';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    setAuthToken(token);
+    setLoading(false);
+  }, []);
+
+      const toggleSettingsModal = () => {
+        setSettingsModalOpen(!isSettingsModalOpen);
+      };
+
+    const userIcon = {
+      href: "#",
+      imgSrc: "/icon/user-demo.svg",
+      alt: "User",
+    };
+
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -23,6 +44,7 @@ export default function Header() {
   }, []);
 
   const isHomePage = pathname === '/';
+  const isSearchPage = pathname === '/search';
 
   const logoSrc = isHomePage
     ? isSticky
@@ -51,7 +73,7 @@ export default function Header() {
   const mobileButtonClasses = `block text-center py-3 px-5 rounded-full border border-gray-300 shadow text-sm font-semibold text-neutral-800 transition duration-200`;
 
   return (
-    <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isSticky ? 'bg-white  py-3' : 'py-4'}`}>
+    <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isSticky ? 'bg-white  py-3' : 'py-4'} ${isSearchPage && 'bg-white'} `}>
       <div className="px-10 mx-auto flex items-center justify-between">
         <Link href="/">
           <Image
@@ -62,6 +84,8 @@ export default function Header() {
           />
         </Link>
         <div className="flex items-center gap-4">
+        {!loading &&!authToken && (
+          <>
           <Link
             href="/login"
             className={loginButtonClasses}
@@ -74,7 +98,32 @@ export default function Header() {
           >
             Register
           </Link>
+</>
+        )}
+ {!loading && authToken && (
+          <>
+            <ul className="ml-auto flex items-center gap-4 align-middle">
+                    <li className="mt-2 cursor-pointer flex items-center gap-2" id="userIcon"onClick={toggleSettingsModal}>
+                        <img
+                        width={40}
+                        height={40}
+                          src={userIcon.imgSrc}
+                          alt={userIcon.alt}
+                          className="bg-neutral-200 lg:inline-flex leading-none hover:text-black rounded-full hover:bg-neutral-100 transition duration-200 font-semibold ml-4"
+                        />
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="16" height="16" aria-hidden="true" className="w-[1em] h-[1em] fill-[#e5e7eb] text-lg transition-all "><path d="m256 275.6-92.3-92.3c-9.8-9.8-25.6-9.8-35.4 0s-9.8 25.6 0 35.4l110 110c4.9 4.9 11.3 7.3 17.7 7.3s12.8-2.4 17.7-7.3l110-110c9.8-9.8 9.8-25.6 0-35.4s-25.6-9.8-35.4 0z"></path></svg>
+                    </li>
+
+                    {isSettingsModalOpen && (
+                  <div id="settingsModal" className="fixed inset-0 overflow-y-auto w-full top-[66px] z-50">
+                    <UserModel />
+                  </div>
+                    )}
+                  </ul>
+                  </>
+        )}
         </div>
+
         <button onClick={toggleMenu} className="lg:hidden focus:outline-none bg-gray-200 p-2 rounded-full">
           <svg width="51" height="51" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect width="56" height="56" rx="28" fill="none"></rect>

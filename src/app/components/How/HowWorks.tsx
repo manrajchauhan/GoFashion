@@ -27,7 +27,7 @@ export default function HowWorks() {
   return (
     <section className="pt-40 pb-32  overflow-hidden">
       <div className="px-14 mx-auto">
-        <h2 className="mb-28 text-4xl md:text-6xl font-bold text-neutral-600 tracking-tighter leading-tight md:max-w-lg">
+        <h2 className="mb-28 text-6xl md:text-8xl font-bold text-neutral-600 tracking-tighter leading-tight md:max-w-2xl">
           How It <span className='text-black'>Works?</span>
         </h2>
         <div className="flex flex-wrap -m-8">
@@ -35,7 +35,7 @@ export default function HowWorks() {
             <div key={index} className="w-full md:w-1/2 lg:w-1/4 p-8">
               <div className="flex flex-wrap items-center mb-7 -m-2">
                 <div className="w-auto p-2">
-                  <div className="relative w-14 h-14 text-2xl font-bold bg-[#ff6314] rounded-full">
+                  <div className="relative w-14 h-14 text-2xl font-bold bg-black rounded-full">
                     <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-neutral-50">
                       {step.step}
                     </span>
@@ -45,8 +45,8 @@ export default function HowWorks() {
                   <div className="w-full h-px bg-gray-200"></div>
                 </div>
               </div>
-              <h3 className="text-xl font-semibold leading-normal tracking-tighter md:max-w-lg">{step.title}</h3>
-              <p className="text-gray-600">{step.description}</p>
+              <h3 className="text-2xl font-semibold leading-normal tracking-tighter md:max-w-lg">{step.title}</h3>
+              <p className="text-xl text-gray-600">{step.description}</p>
             </div>
           ))}
         </div>

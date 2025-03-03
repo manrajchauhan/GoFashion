@@ -41,7 +41,7 @@ export default function UserProfile() {
       <h1 className="text-xl font-semibold text-neutral-700 mb-6">Settings</h1>
 
       {loading ? (
-        <p>Loading...</p>
+        <></>
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : (

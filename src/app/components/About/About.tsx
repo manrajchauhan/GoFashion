@@ -5,7 +5,7 @@ export default function About() {
     <div className="mt-20">
       <section className="py-2">
         <div className="px-14 mx-auto">
-        <h2 className="mb-28 text-4xl md:text-6xl font-bold text-neutral-600 tracking-tighter leading-tight md:max-w-lg ">
+        <h2 className="mb-28 text-6xl md:text-8xl font-bold text-neutral-600 tracking-tighter leading-tight md:max-w-2xl">
           <span className='text-black'>About</span> Us
         </h2>
           <div className="max-w-4xl px-8 mb-20 mx-auto text-center">
