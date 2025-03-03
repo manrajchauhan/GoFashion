@@ -202,9 +202,6 @@ export default function SearchPage() {
   {/* Reset Filters Button */}
   <button
     className="w-full px-4 py-2 bg-black text-white font-medium rounded-lg hover:bg-red-600 transition duration-200"
-    onClick={() =>
-      setFilters({ color: "", trend: "", price: "", size: "", material: "", brand: "" })
-    }
   >
     Reset Filters
   </button>
