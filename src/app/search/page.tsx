@@ -8,6 +8,30 @@ import Link from "next/link";
 export default function SearchPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
+  const dressSuggestions = [
+    "Floral Dress",
+    "Red Dress",
+    "Silk Dress",
+    "Summer Dress",
+    "Casual Dress",
+    "Party Gown",
+    "Wedding Saree",
+    "Maxi Dress",
+    "Bohemian Beach Dress",
+    "Satin Slip Dress",
+  ];
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (searchTerm.length > 0) {
+      const filtered = dressSuggestions.filter((dress) =>
+        dress.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setSuggestions(filtered);
+    } else {
+      setSuggestions([]);
+    }
+  }, [searchTerm]);
 
   const dresses = [
     { id: 1, name: "Floral Dress", img: "/dress/flora.webp", color: "Floral", trend: "Summer" },
@@ -33,42 +57,55 @@ export default function SearchPage() {
   );
 
 
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchTerm(suggestion);
+    setSuggestions([]);
+  };
+
+
   return (
     <>
       <Header />
         {/* Search Bar (Fixed) */}
-        <div className="mx-auto gap-10 flex mb-4 ">
         <div className="fixed bg-white top-0 left-0 w-full mt-16 py-4 px-6 flex justify-center border-b z-40">
-        <form
-        className="flex flex-col justify-center px-7 py-8 w-full  rounded-[14px] overflow-hidden max-md:p-5 max-sm:p-4 md:max-w-[1100px] md:mx-auto"
-      >
-        <div className="flex flex-wrap gap-2 max-sm:flex-col">
-          {/* Search Field */}
-          <label className="flex flex-1 items-center gap-2 px-4 py-3.5 border-b rounded-full cursor-pointer min-w-[296px] h-[54px] max-md:min-w-[unset]">
-            <i className="ti ti-map-pin text-lg text-stone-500" />
-            <input
-              type="text"
-              placeholder="Search a Dress"
-              className="bg-transparent outline-none w-full text-black placeholder-black"
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
-          </label>
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="px-10 py-3.5 font-medium text-white bg-black rounded-lg cursor-pointer transition-colors duration-200 ease-in-out hover:bg-zinc-700 h-[54px] w-[236px] max-md:w-[calc(50%_-_6px)] max-sm:w-full"
-          >
-          Search
-          </button>
-        </div>
-      </form>
-        </div>
+      <div className="relative flex flex-1 items-center w-full max-w-[1200px]">
+              <label className="flex flex-1 items-center gap-2 px-4 py-3.5 border-b rounded-full cursor-pointer min-w-[296px] h-[54px] max-md:min-w-[unset] bg-white relative z-10">
+                <input
+                  type="text"
+                  placeholder="Search a Dress"
+                  className="bg-transparent outline-none w-full text-black placeholder-black"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                />
+              </label>
+                {/* Submit Button */}
+            <button
+              type="submit"
+              className="px-10 py-3.5 font-medium text-white bg-black rounded-lg cursor-pointer transition-colors duration-200 ease-in-out hover:bg-zinc-700 h-[54px] w-[236px] max-md:w-[calc(50%_-_6px)] max-sm:w-full"
+            >
+              Search
+            </button>
 
-      {/* Sidebar Filters (Sticky) */}
-<section className="text-headingchild text-md min-w-[30%] sticky top-[220px] h-screen mt-[210px] flex flex-col justify-between z-10  bg-white border-r p-6 ">
+              {/* Suggestions dropdown (Fixed z-index and positioning) */}
+              {suggestions.length > 0 && (
+                <ul className="absolute top-full left-0 w-full bg-white border rounded-lg shadow-md mt-2 z-50 max-h-52 overflow-y-auto">
+                  {suggestions.map((suggestion, index) => (
+                    <li
+                      key={index}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => handleSuggestionClick(suggestion)}
+                    >
+                      {suggestion}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+        </div>
+ <div className="mx-auto gap-10 flex mb-4 ">
+<section className="text-headingchild text-md min-w-[30%] sticky top-[100px] h-screen mt-[150px] flex flex-col justify-between z-10  bg-white border-r p-6 ">
+
   <h2 className="text-2xl tracking-tighter font-semibold mb-4">Filters</h2>
-
   {/* Categories */}
   <div className="mb-4 ">
     <label className="block text-gray-700 font-medium">Categories</label>
@@ -207,10 +244,9 @@ export default function SearchPage() {
   </button>
 </section>
 
-
         <section className="max-w-full mt-[220px]">
         {searchTerm && (
-        <div className="mt-8 grid grid-cols-3 gap-4">
+        <div className="mt-8 grid grid-cols-4 gap-6">
           {filteredDresses.length > 0 ? (
             filteredDresses.map(dress => (
               <div key={dress.id} className="w-full h-full hover:shadow hover:rounded-2xl flex flex-col justify-center items-center transition-all duration-200 ease-in-out bg-white rounded-2xl">

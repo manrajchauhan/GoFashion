@@ -1,3 +1,4 @@
+"use client"
 import React, { MutableRefObject, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { twMerge } from "tailwind-merge";

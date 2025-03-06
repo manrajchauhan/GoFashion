@@ -52,6 +52,12 @@ export default function DasHeader() {
         </div>
 
         <ul className="ml-auto flex gap-7 py-2">
+        <Link href="/user/upload" className="bg-orange-100 px-4 hover:bg-orange-50 mt-2 rounded-xl flex gap-2 items-center">
+        <img src="/upload.svg" alt="Upload" className="w-6 h-6"/>
+            <button>
+                <h1>Upload</h1>
+            </button>
+            </Link>
 
           <li className="mt-2 cursor-pointer" id="userIcon"onClick={toggleSettingsModal}>
           <img

@@ -1,0 +1,24 @@
+import mongoose from "mongoose";
+
+const LibrarySchema = new mongoose.Schema(
+  {
+    imageName: { type: String, required: true },
+    imageDescription: { type: String, required: true },
+    imageUrl: { type: String, required: true },
+
+    category: { type: String, required: true },
+    subcategory: { type: String, required: true },
+    color: { type: String, required: true },
+    fabric: { type: String, required: true },
+    occasion: { type: String, required: true },
+    sleeveType: { type: String, required: true },
+    neckline: { type: String, required: true },
+    fitStyle: { type: String, required: true },
+    pattern: { type: String, required: true },
+    uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  },
+  { timestamps: true }
+);
+
+const ImageLibrary = mongoose.models.Library || mongoose.model("Library", LibrarySchema);
+export default ImageLibrary;

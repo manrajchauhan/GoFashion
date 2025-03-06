@@ -1,85 +1,99 @@
-'use client';
+"use client";
 import React, { useState } from "react";
-import { DragCards } from "../ui/cards";
+import { useRouter } from "next/navigation";
+
+const dressSuggestions = [
+  "Red Evening Gown",
+  "Black Party Dress",
+  "Floral Summer Dress",
+  "Denim Casual Dress",
+  "White Wedding Dress",
+  "Formal Office Wear",
+  "Pink Cocktail Dress",
+  "Maxi Dress",
+  "Bohemian Beach Dress",
+  "Satin Slip Dress",
+  "Velvet Bodycon Dress",
+  "Lace A-Line Dress",
+];
 
 export default function AppDemo() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
+  const router = useRouter();
 
-  const dresses = [
-    { id: 1, name: "Floral Dress", img: "/dress/flora.webp", color: "Floral", trend: "Summer" },
-    { id: 2, name: "Red Dress", img: "https://via.placeholder.com/150?text=Red", color: "Red", trend: "Trending" },
-    { id: 3, name: "Black Dress", img: "https://via.placeholder.com/150?text=Black", color: "Black", trend: "Classic" },
-    { id: 4, name: "Blue Dress", img: "https://via.placeholder.com/150?text=Blue", color: "Blue", trend: "Casual" },
-    { id: 5, name: "Summer Dress", img: "https://via.placeholder.com/150?text=Summer", color: "Yellow", trend: "Summer" },
-    { id: 6, name: "Casual Dress", img: "https://via.placeholder.com/150?text=Casual", color: "Green", trend: "Casual" }
-  ];
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+    setSearchTerm(input);
 
-  const handleSearchChange = (e: any) => {
-    setSearchTerm(e.target.value);
+    // Filter suggestions based on input
+    if (input.length > 0) {
+      const filtered = dressSuggestions.filter((dress) =>
+        dress.toLowerCase().includes(input.toLowerCase())
+      );
+      setFilteredSuggestions(filtered);
+    } else {
+      setFilteredSuggestions([]);
+    }
   };
 
-  // Filter dresses based on search term
-  const filteredDresses = dresses.filter(dress =>
-    dress.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchTerm(suggestion);
+    setFilteredSuggestions([]); // Hide suggestions after selection
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      router.push(`/search?query=${encodeURIComponent(searchTerm)}`);
+    }
+  };
 
   return (
-    <>
-    <div className="px-20">
+    <div className="px-20 relative">
       <form
-        className="flex flex-col justify-center px-7 py-8 w-full bg-white rounded-[14px] overflow-hidden max-md:p-5 max-sm:p-4 mt-[-48px] md:max-w-[1100px] md:mx-auto"
+        onSubmit={handleSearchSubmit}
+        className="flex flex-col justify-center px-7 py-8 w-full bg-white rounded-[14px] overflow-visible max-md:p-5 max-sm:p-4 mt-[-48px] md:max-w-[1100px] md:mx-auto relative"
       >
-        <div className="flex flex-wrap gap-2 max-sm:flex-col">
-          {/* Search Field */}
-          <label className="flex flex-1 items-center gap-2 px-4 py-3.5 border-b rounded-full cursor-pointer min-w-[296px] h-[54px] max-md:min-w-[unset]">
-            <i className="ti ti-map-pin text-lg text-stone-500" />
-            <input
-              type="text"
-              placeholder="Search a Dress"
-              className="bg-transparent outline-none w-full text-black placeholder-black"
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
-          </label>
-          {/* Submit Button */}
+        <div className="flex flex-wrap gap-2 max-sm:flex-col relative">
+          {/* Input with suggestions */}
+          <div className="relative flex flex-1 items-center">
+            <label className="flex flex-1 items-center gap-2 px-4 py-3.5 border-b rounded-full cursor-pointer min-w-[296px] h-[54px] max-md:min-w-[unset] relative z-10">
+              <i className="ti ti-map-pin text-lg text-stone-500" />
+              <input
+                type="text"
+                placeholder="Search a Dress"
+                className="bg-transparent outline-none w-full text-black placeholder-black"
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+            </label>
+
+            {/* Suggestions dropdown (Fixed z-index and overflow issue) */}
+            {filteredSuggestions.length > 0 && (
+              <ul className="absolute top-full left-0 w-full bg-white border rounded-lg shadow-lg mt-2 z-50 max-h-60 overflow-y-auto">
+                {filteredSuggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Search Button */}
           <button
             type="submit"
             className="px-10 py-3.5 font-medium text-white bg-black rounded-lg cursor-pointer transition-colors duration-200 ease-in-out hover:bg-zinc-700 h-[54px] w-[236px] max-md:w-[calc(50%_-_6px)] max-sm:w-full"
           >
-          Search
+            Search
           </button>
         </div>
       </form>
-
-      {/* Image Section (Display Images while Searching) */}
-      {searchTerm && (
-        <div className="mt-8 grid grid-cols-3 gap-4">
-          {filteredDresses.length > 0 ? (
-            filteredDresses.map(dress => (
-              <div key={dress.id} className="w-full h-full rounded-lg border flex flex-col justify-center items-center">
-                <img
-                  src={dress.img}
-                  alt={dress.name}
-                  className="object-cover w-full h-[200px]"
-                />
-                <div className="mt-4 text-center p-2">
-                  <h3 className="font-semibold text-lg">{dress.name}</h3>
-                  <p className="text-sm text-gray-600">Color: {dress.color}</p>
-                  <p className="text-sm text-gray-600">Trend: {dress.trend}</p>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="col-span-3 text-center text-gray-500">
-              No dresses found.
-            </div>
-          )}
-        </div>
-      )}
     </div>
-    <div>
-        <DragCards/>
-    </div>
-    </>
   );
 }
