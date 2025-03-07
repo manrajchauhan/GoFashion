@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import UserModel from "../models/UserModel";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function DasHeader() {
 
@@ -46,9 +47,14 @@ export default function DasHeader() {
       <div className="flex items-center relative">
         {/* Logo */}
         <div className="mr-32">
-          <a className="text-xl text-white font-semibold" href="/user/dashboard">
-            <img className="h-10" src="/logo.svg" alt="Logo" width="auto" />
-          </a>
+          <Link className="text-xl text-white font-semibold" href="/user/dashboard">
+           <Image
+           alt="logo"
+           src={'/logo.png'}
+           width={160}
+           height={160}
+           />
+           </Link>
         </div>
 
         <ul className="ml-auto flex gap-7 py-2">

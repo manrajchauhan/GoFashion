@@ -104,7 +104,7 @@ export default function Header() {
           <>
             <ul className="ml-auto flex items-center gap-4 align-middle">
                     <li className="mt-2 cursor-pointer flex items-center gap-2" id="userIcon"onClick={toggleSettingsModal}>
-                        <img
+                        <Image
                         width={40}
                         height={40}
                           src={userIcon.imgSrc}

@@ -1,14 +1,15 @@
 "use client";
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
 import Filter from "../components/ui/filter";
-import PreviewModels from "../components/models/PreviewModels";
 import dresses from "../components/extra/dresses";
 import dressSuggestions from "../components/extra/dress_suggest";
+import PreviewModels from "../components/models/PreviewModels";
 
-export default function SearchPage() {
+const SearchContent = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialSearch = searchParams.get("query") || "";
@@ -25,17 +26,16 @@ export default function SearchPage() {
   });
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-const [selectedFabric, setSelectedFabric] = useState<string | null>(null);
-const [selectedSleeveType, setSelectedSleeveType] = useState<string | null>(null);
-const [selectedOccasion, setSelectedOccasion] = useState<string | null>(null);
-const [selectedFitStyle, setSelectedFitStyle] = useState<string | null>(null);
-const [selectedPattern, setSelectedPattern] = useState<string | null>(null);
+  const [selectedFabric, setSelectedFabric] = useState<string | null>(null);
+  const [selectedSleeveType, setSelectedSleeveType] = useState<string | null>(null);
+  const [selectedOccasion, setSelectedOccasion] = useState<string | null>(null);
+  const [selectedFitStyle, setSelectedFitStyle] = useState<string | null>(null);
+  const [selectedPattern, setSelectedPattern] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedAlt, setSelectedAlt] = useState<string | null>(null);
   const [selectedDesc, setSelectedDesc] = useState<string | null>(null);
 
-  // Fetch search suggestions dynamically
   useEffect(() => {
     if (searchTerm.trim().length > 0) {
       setSuggestions(
@@ -48,19 +48,15 @@ const [selectedPattern, setSelectedPattern] = useState<string | null>(null);
     }
   }, [searchTerm]);
 
-  // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
 
-  // Handle clicking on a suggestion
   const handleSuggestionClick = (suggestion: string) => {
     setSearchTerm(suggestion);
-    setSuggestions([]); // Hide suggestions after selection
-    // router.push(`/search?query=${encodeURIComponent(suggestion)}`);
+    setSuggestions([]);
   };
 
-  // Handle submitting the search
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
@@ -68,7 +64,7 @@ const [selectedPattern, setSelectedPattern] = useState<string | null>(null);
     }
   };
 
-const openModal = (
+  const openModal = (
     imgSrc: string,
     imgAlt: string,
     desc: string,
@@ -91,13 +87,10 @@ const openModal = (
     setIsModalOpen(true);
   };
 
-
-  // Close modal
   const closeModal = () => {
     setIsModalOpen(false);
   };
 
-  // Handle filter changes
   const handleFilterChange = (filterType: string, value: string) => {
     if (filterType === "reset") {
       setFilters({
@@ -114,7 +107,6 @@ const openModal = (
     }
   };
 
-  // Filter dresses based on search term and selected filters
   const filteredDresses = dresses.filter((dress) => {
     return (
       dress.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
@@ -130,8 +122,6 @@ const openModal = (
 
   return (
     <>
-      <Header />
-
       {/* Search Bar */}
       <div className="fixed bg-white top-0 left-0 w-full mt-16 py-4 px-6 flex justify-center border-b z-40">
         <div className="relative flex flex-1 items-center w-full max-w-[1200px]">
@@ -146,7 +136,6 @@ const openModal = (
                 onBlur={() => setTimeout(() => setSuggestions([]), 200)}
               />
             </label>
-
             <button type="submit" className="ml-4 px-6 py-3 bg-black text-white rounded-lg hover:bg-zinc-700">
               Search
             </button>
@@ -176,35 +165,34 @@ const openModal = (
           <Filter onFilterChange={handleFilterChange} />
         </section>
 
-      {/* Dresses Grid */}
-<section className="max-w-full mt-[140px]">
-  {filteredDresses.length > 0 ? (
-    <div className="mt-8 grid grid-cols-4 gap-6">
-      {filteredDresses.map((dress) => (
-        <div
-          key={dress.id}
-          className="w-full h-full hover:shadow-lg hover:rounded-2xl bg-white rounded-2xl cursor-pointer"
-          onClick={() => openModal(
-            dress.img,
-            dress.name,
-            dress.description,
-            dress.category,
-            dress.fabric,
-            dress.sleeveType,
-            dress.occasion,
-            dress.fitStyle,
-            dress.pattern
+        {/* Dresses Grid */}
+        <section className="max-w-full mt-[140px] flex-1">
+          {filteredDresses.length > 0 ? (
+            <div className="mt-8 grid grid-cols-4 gap-6">
+              {filteredDresses.map((dress) => (
+                <div
+                  key={dress.id}
+                  className="w-full h-full hover:shadow-lg hover:rounded-2xl bg-white rounded-2xl cursor-pointer"
+                  onClick={() => openModal(
+                    dress.img,
+                    dress.name,
+                    dress.description,
+                    dress.category,
+                    dress.fabric,
+                    dress.sleeveType,
+                    dress.occasion,
+                    dress.fitStyle,
+                    dress.pattern
+                  )}
+                >
+                  <img src={dress.img} alt={dress.name} className="object-cover w-full h-auto p-4" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="col-span-3 text-center text-gray-500 mt-10">No dresses found.</div>
           )}
-        >
-          <img src={dress.img} alt={dress.name} className="object-cover w-full h-auto p-4" />
-        </div>
-      ))}
-    </div>
-  ) : (
-    <div className="col-span-3 text-center text-gray-500 mt-10">No dresses found.</div>
-  )}
-</section>
-
+        </section>
       </div>
 
       {/* Preview Modal */}
@@ -224,6 +212,17 @@ const openModal = (
 
 
       <Footer />
+    </>
+  );
+};
+
+export default function SearchPage() {
+  return (
+    <>
+      <Header />
+      <Suspense fallback={<p>Loading...</p>}>
+        <SearchContent />
+      </Suspense>
     </>
   );
 }
