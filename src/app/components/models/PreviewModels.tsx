@@ -1,68 +1,50 @@
-"use client"
-import Link from 'next/link'
-import { useRouter } from "next/navigation";
-import React from 'react'
+"use client";
+import React from "react";
 
-const demoimg =
-{
-    previewUrl: '/dress/cotton-silk-girl.jpeg',
-    img_name : 'A Women Wearing Silk Cotton Dress',
-    description: 'A Women Wearing Silk Cotton Dress',
+interface PreviewModelsProps {
+  isOpen: boolean;
+  onClose: () => void;
+  imageSrc: string;
+  imageAlt: string;
+  description: string;
+  category: string;
+  fabric: string;
+  sleeveType: string;
+  occasion: string;
+  fitStyle: string;
+  pattern: string;
 }
 
-const Tags = [
-    {
-        id:1,
-        name:"Casual Wear",
-        icon:"/icon/category.svg",
-},
-{
-    id:2,
-    name:"Jackets",
-    icon:"/icon/subcategory.svg",
-},
-{
-    id:3,
-    name:"Casual Outing",
-    icon:"/icon/Occasion.svg",
-},
-{
-    id:4,
-    name:"Sleeveless",
-    icon:"/icon/sleeve.svg",
-},
-{
-    id:5,
-    name:"Round Neck",
-    icon:"/icon/neck.svg",
-},
+export default function PreviewModels({
+  isOpen,
+  onClose,
+  imageSrc,
+  imageAlt,
+  description,
+  category,
+  fabric,
+  sleeveType,
+  occasion,
+  fitStyle,
+  pattern,
+}: PreviewModelsProps) {
+  if (!isOpen) return null;
 
-{
-    id:6,
-    name:"Solid",
-    icon:"/icon/pattern.svg",
-},
-]
-
-export default function PreviewModels() {
-
-    const router = useRouter();
-    const HandleClick = () =>{
-        router.push("/");
-    }
-
+  const Tags = [
+    { id: 1, name: category, icon: "/icon/category.svg" },
+    { id: 2, name: fabric, icon: "/icon/subcategory.svg" },
+    { id: 3, name: sleeveType, icon: "/icon/sleeve.svg" },
+    { id: 4, name: occasion, icon: "/icon/Occasion.svg" },
+    { id: 5, name: fitStyle, icon: "/icon/neck.svg" },
+    { id: 6, name: pattern, icon: "/icon/pattern.svg" },
+  ];
   return (
-    <div className="right-0 top-10 absolute  w-full min-h-screen shadow-lg rounded-md  ">
-    <div className="flex items-center mx-10  ">
-      <img
-        loading="lazy"
-        src="/logo.svg"
-        className="object-contain py-4 max-w-40 max-md:ml-1 rounded-full "
-        alt="Business Logo"
-      />
-      <button
-        className="flex top-2 absolute right-10"
-onClick={HandleClick}
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-6">
+      <div className="bg-gray-50 p-5 rounded-lg shadow-lg max-w-6xl w-full relative h-[90%]">
+        {/* Close Button */}
+        <button
+        className="flex top-6 absolute right-10"
+onClick={onClose}
       >
         <svg
           className="rounded-full border border-neutral-700 p-2"
@@ -81,55 +63,60 @@ onClick={HandleClick}
           ></path>
         </svg>
       </button>
-      <h1 className="px-4 mb-2 font-bold text-green-800 tracking-tighter text-sm">Preview</h1>
-    </div>
-
-    <div className='border-t px-10 p-5'>
-        <div className='justify-between flex'>
-    <div>
-        <h1 className='text-2xl mb-2 mt-6'>{demoimg.img_name}</h1>
+        {/* Header */}
+        <div className="flex items-center mb-4">
+          <img src="/logo.svg" alt="Business Logo" className="max-w-40 rounded-full" />
+          <h1 className="ml-4 font-bold text-green-800 text-sm">Preview</h1>
         </div>
-        <div>
-            <ul className="ml-auto flex gap-7 py-2">
-       <Link href="#" className="bg-[#EA580B] px-4 hover:bg-orange-700 mt-2 rounded-xl flex gap-2 items-center p-2">
-        <img src="/icon/download.svg" alt="Upload" className="w-6 h-4"/>
-            <button>
-                <h1>Download</h1>
-            </button>
-            </Link>
-        </ul>
-</div>
-</div>
-    <div className="flex gap-20 ">
-    <div className="mt-4 ">
-        <img
-          src={demoimg.previewUrl}
-          alt="preview"
-          className="object-cover w-full h-[500px] rounded-lg"
-        />
-      </div>
 
-      <div className="gap-2">
-       <div className=''>
-       <div className="grid grid-cols-3 gap-5 mt-4 mb-16 text-heading">
-            {Tags.map((Tagging) => (
-              <li key={Tagging.id} className='flex items-center gap-5 bg-white p-3 rounded-lg'>
-                <div className="p-1 w-fit">
-                <img src={Tagging.icon} alt="icons" className='w-fit h-6 ' />
+        {/* Main Content */}
+        <div className="border-t px-4 py-4">
+          <h1 className="text-xl font-medium mt-2">{imageAlt}</h1>
+
+          <div className="flex gap-6">
+            {/* Image Section */}
+            <div className="w-1/3 mt-10">
+              <img
+                src={imageSrc}
+                alt={imageAlt}
+                className="object-cover w-auto h-[420px] rounded-lg"
+              />
+            </div>
+
+            {/* Details Section */}
+            <div className="flex flex-col gap-4 mt-8">
+              <div>
+                <div className="grid grid-cols-2 gap-4 mt-2">
+                  {Tags.map((tag) => (
+                    <div key={tag.id} className="flex items-center gap-3 bg-white p-2 rounded-lg">
+                      <img src={tag.icon} alt="icon" className="w-6 h-6" />
+                      <p>{tag.name}</p>
+                    </div>
+                  ))}
                 </div>
-                <p>{Tagging.name}</p>
-              </li>
-            ))}
+              </div>
+
+              <div className="mt-10">
+                <h2 className="font-semibold text-lg">Description:</h2>
+                <p className="text-gray-700">{description}</p>
+              </div>
+
+              {/* Download Button */}
+              <div className="mt-4 bg-[#EC5B24] w-1/2 text-center rounded-xl">
+                <a
+                  href={imageSrc}
+                  download
+                  className="px-4 py-2 text-white rounded-lg gap-2 hover:bg-orange-700 flex transition-all duration-500"
+                >
+                  <img src="/icon/download.svg" alt="Download" className="w-6 h-6" />
+                  <span>Download</span>
+                </a>
+
+              </div>
+            </div>
           </div>
-       </div>
-       <div className='mt-10'>
-        <h1>Description: {demoimg.description}</h1>
-       </div>
-
+        </div>
       </div>
-
     </div>
-    </div>
-  </div>
-  )
+  );
 }

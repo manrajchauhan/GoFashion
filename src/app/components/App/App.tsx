@@ -1,21 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-
-const dressSuggestions = [
-  "Red Evening Gown",
-  "Black Party Dress",
-  "Floral Summer Dress",
-  "Denim Casual Dress",
-  "White Wedding Dress",
-  "Formal Office Wear",
-  "Pink Cocktail Dress",
-  "Maxi Dress",
-  "Bohemian Beach Dress",
-  "Satin Slip Dress",
-  "Velvet Bodycon Dress",
-  "Lace A-Line Dress",
-];
+import dressSuggestions from "../extra/dress_suggest";
 
 export default function AppDemo() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,7 +12,6 @@ export default function AppDemo() {
     const input = e.target.value;
     setSearchTerm(input);
 
-    // Filter suggestions based on input
     if (input.length > 0) {
       const filtered = dressSuggestions.filter((dress) =>
         dress.toLowerCase().includes(input.toLowerCase())
@@ -39,7 +24,7 @@ export default function AppDemo() {
 
   const handleSuggestionClick = (suggestion: string) => {
     setSearchTerm(suggestion);
-    setFilteredSuggestions([]); // Hide suggestions after selection
+    setFilteredSuggestions([]);
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
