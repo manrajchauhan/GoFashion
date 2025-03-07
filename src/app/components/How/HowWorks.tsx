@@ -3,31 +3,31 @@ import React from 'react'
 const howItWorksSteps = [
     {
       step: "1",
-      title: "Register Your Account",
-      description: "Sign up and create your account to access the design tools.",
+      title: "Explore Fashion Inspirations",
+      description: "Browse our vast collection of curated fashion images, categorized by style, fabric, and trends.",
     },
     {
       step: "2",
-      title: "Create Your Dress",
-      description: "Use our intuitive application to design a dress from scratch or customize templates.",
+      title: "Save Your Favorites",
+      description: "Create your personal collection by saving images that inspire your creativity.",
     },
     {
       step: "3",
-      title: "Preview Your Design",
-      description: "Get a realistic preview of your dress to see how it looks before finalizing.",
+      title: "Organize with Projects",
+      description: "Group your saved inspirations into projects to plan and refine your fashion ideas.",
     },
     {
       step: "4",
-      title: "Customize & Finalize",
-      description: "Make adjustments, choose materials, and personalize your dress before ordering or saving.",
+      title: "Stay Updated with Trends",
+      description: "Discover the latest fashion trends and seasonal highlights to stay ahead in style.",
     },
-  ];
+];
 
 export default function HowWorks() {
   return (
-    <section className="pt-40 pb-32  overflow-hidden">
+    <section className="pt-40 pb-32 overflow-hidden">
       <div className="px-14 mx-auto">
-        <h2 className="mb-28 text-6xl md:text-8xl font-bold text-neutral-600 tracking-tighter leading-tight md:max-w-2xl">
+        <h2 className="mb-28 text-6xl md:text-8xl font-bold text-neutral-600 tracking-tighter leading-tight text-center">
           How It <span className='text-black'>Works?</span>
         </h2>
         <div className="flex flex-wrap -m-8">
