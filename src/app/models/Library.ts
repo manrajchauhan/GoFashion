@@ -5,7 +5,6 @@ const LibrarySchema = new mongoose.Schema(
     imageName: { type: String, required: true, unique: true },
     imageDescription: { type: String, required: true },
     imageUrl: { type: String, required: true },
-
     category: { type: String, required: true },
     subcategory: { type: String, required: false },
     color: { type: String, required: true },
