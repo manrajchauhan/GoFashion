@@ -10,43 +10,31 @@ cloudinary.v2.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-interface Context {
-  params: {
-    id: string;
-  };
-}
-
-export async function DELETE(req: NextRequest, context: Context) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
-    const { id } = context.params; // Corrected params access
+    const { params } = context;
+    const id = params?.id;
 
     if (!id) {
       return NextResponse.json({ error: "Image ID is required" }, { status: 400 });
     }
 
-    // Connect to DB
     await connectToDB();
-
-    // Find the image by ID
     const image = await ImageLibrary.findById(id);
     if (!image) {
       return NextResponse.json({ error: "Image not found" }, { status: 404 });
     }
 
-    // Extract the public_id from the image URL
     const publicId = getPublicIdFromUrl(image.imageUrl);
     if (!publicId) {
       return NextResponse.json({ error: "Image does not have a valid public_id" }, { status: 400 });
     }
 
-    // Delete the image from Cloudinary
     const cloudinaryResponse = await cloudinary.v2.uploader.destroy(publicId);
-
     if (cloudinaryResponse.result === "not found") {
       return NextResponse.json({ error: "Image not found in Cloudinary" }, { status: 404 });
     }
 
-    // Delete the image from MongoDB
     await ImageLibrary.findByIdAndDelete(id);
 
     return NextResponse.json(
@@ -59,9 +47,9 @@ export async function DELETE(req: NextRequest, context: Context) {
   }
 }
 
-// Utility function to extract the public_id from the image URL
+// Helper function to extract public ID from Cloudinary URL
 const getPublicIdFromUrl = (url: string): string => {
-  const regex = /\/v\d+\/(.+?)\.[a-z]+$/; // Extracts public ID without extension
+  const regex = /\/v\d+\/(.+?)\.[a-z]+$/;
   const matches = url.match(regex);
   return matches ? matches[1] : "";
 };
