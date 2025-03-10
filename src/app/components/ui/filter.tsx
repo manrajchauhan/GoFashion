@@ -2,8 +2,8 @@
 import React from "react";
 
 interface FilterProps {
-  onFilterChange: (filterType: string, value: string) => void;
-}
+    onFilterChange: (filterType: "category" | "color" | "fabric" | "sleeveType" | "occasion" | "fitStyle" | "pattern", value: string) => void;
+  }
 
 export default function Filter({ onFilterChange }: FilterProps) {
   return (
@@ -122,11 +122,6 @@ export default function Filter({ onFilterChange }: FilterProps) {
           <option value="Patterned">Patterned</option>
         </select>
       </div>
-
-      {/* Reset Filters Button */}
-      <button className="w-full px-4 py-2 bg-black text-white rounded-lg hover:bg-red-600 transition duration-200" onClick={() => onFilterChange("reset", "")}>
-        Reset Filters
-      </button>
     </div>
   );
 }

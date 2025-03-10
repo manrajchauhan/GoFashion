@@ -32,6 +32,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     { href: "/user/projects", icon: "/icon/project.svg", label: "Projects" },
     { href: "/user/favourite", icon: "/icon/fav.svg", label: "Favourite" },
     { href: "/user/trash", icon: "/icon/trash.svg", label: "Trash" },
+    { href: "/user/library", icon: "/icon/files.svg", label: "Library" },
   ];
 
   const settingsLink = { href: "/user/settings", icon: "/icon/settings.svg", label: "Settings" };

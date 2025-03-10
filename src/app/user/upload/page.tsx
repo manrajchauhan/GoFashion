@@ -1,7 +1,11 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 interface FormData {
   category: string;
@@ -36,6 +40,50 @@ export default function AddImagePage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [clientId, setClientId] = useState<string | null>(null);
+
+  // 🔹 Authentication State
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [userData, setUserData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      setAuthToken(token);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (authToken) {
+      const fetchUserData = async () => {
+        setLoading(true);
+        try {
+          const response = await axios.get("/api/users", {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          });
+          setUserData(response.data.user);
+        } catch (fetchError: any) {
+          setError("Failed to fetch user data");
+          console.error("Error fetching user data:", fetchError.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchUserData();
+    }
+  }, [authToken]);
+
+  // ✅ Set clientId when userData is available
+  useEffect(() => {
+    if (userData && userData.client_id) {
+      setClientId(userData.client_id);
+    }
+  }, [userData]);
 
   const onSubmit = async (data: FormData) => {
     if (!selectedFile) {
@@ -43,8 +91,7 @@ export default function AddImagePage() {
       return;
     }
 
-    const token = localStorage.getItem("authToken");
-    if (!token) {
+    if (!clientId) {
       setMessage("User is not authenticated. Please login.");
       return;
     }
@@ -59,26 +106,28 @@ export default function AddImagePage() {
         formData.append(key, value);
       });
 
+      // Add `uploadedBy` field (client_id)
+      formData.append("uploadedBy", clientId);
+
       const response = await fetch("/api/upload", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
         body: formData,
       });
 
       const result = await response.json();
       console.log("Upload Response:", result);
 
-
       if (response.ok) {
-        setMessage("Image uploaded successfully!");
+        toast.success("Image uploaded successfully!");
         setPreviewUrl(null);
         setSelectedFile(null);
       } else {
-        setMessage(result.error || "Failed to upload image.");
+        toast.error("Failed to upload image.");
       }
     } catch (error) {
-      console.error("Upload Error:", error);
-      setMessage("Something went wrong. Try again.");
+
+      toast.error("Something went wrong. Try again.");
     }
 
     setUploading(false);
@@ -99,65 +148,68 @@ export default function AddImagePage() {
   };
 
   return (
-    <div className="px-4 py-4">
-      <div className="max-w-full mx-auto p-6 bg-white shadow-lg rounded-lg">
-        <h2 className="text-xl font-semibold text-center">Upload Image</h2>
-        <p className="text-gray-500 text-center mb-6">Fill out the details for the image upload.</p>
+     <div className="px-4 py-4">
+          <ToastContainer />
+          <div className="max-w-full mx-auto p-6 bg-white shadow-lg rounded-lg">
+            <h2 className="text-xl font-semibold text-center">Upload Image</h2>
+            <p className="text-gray-500 text-center mb-6">Fill out the details for the image upload.</p>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left Side - Form Inputs */}
-          <div className="space-y-5">
-            {/* File Upload */}
-            <div className="border-dashed border-2 p-4 rounded-lg text-center">
-              <label className="cursor-pointer text-[#EA580B]">
-                Drag & Drop or <span className="font-semibold">Choose file</span> to upload
-                <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-              </label>
-              {selectedFile && <p className="text-gray-600 mt-2">{selectedFile.name}</p>}
-            </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left Side - Form Inputs */}
+              <div className="space-y-5">
+                {/* File Upload */}
+                <div className="border-dashed border-2 p-4 rounded-lg text-center">
+                  <label className="cursor-pointer text-[#EA580B]">
+                    Drag & Drop or <span className="font-semibold">Choose file</span> to upload
+                    <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                  </label>
+                  {selectedFile && <p className="text-gray-600 mt-2">{selectedFile.name}</p>}
+                </div>
 
-            {/* Image Name & Description */}
-            <input type="text" {...register("imageName", { required: true })} className="w-full p-2 border rounded-lg" placeholder="Image Name" />
-            <textarea {...register("imageDescription", { required: true })} className="w-full p-2 border rounded-lg" placeholder="Image Description" />
+                {/* Image Name & Description */}
+                <input type="text" {...register("imageName", { required: true })} className="w-full p-2 border rounded-lg" placeholder="Image Name" />
+                <textarea {...register("imageDescription", { required: true })} className="w-full p-2 border rounded-lg" placeholder="Image Description" />
 
-            {/* Dropdown Fields (Two Columns) */}
-<div className="grid grid-cols-2 gap-4">
-  {[
-    { label: "Category", options: categories, name: "category" },
-    { label: "Subcategory", options: subcategories.Women, name: "subcategory" },
-    { label: "Color", options: colors, name: "color" },
-    { label: "Fabric", options: fabrics, name: "fabric" },
-    { label: "Occasion", options: occasions, name: "occasion" },
-    { label: "Sleeve Type", options: sleeveTypes, name: "sleeveType" },
-    { label: "Neckline", options: necklines, name: "neckline" },
-    { label: "Fit Style", options: fitStyles, name: "fitStyle" },
-    { label: "Pattern", options: patterns, name: "pattern" },
-  ].map(({ label, options, name }) => (
-    <div key={name} className="w-full">
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
-      <select {...register(name as keyof FormData)} className="w-full p-2 border rounded-lg">
-        {options.map((option) => (
-          <option key={option} value={option}>{option}</option>
-        ))}
-      </select>
-    </div>
-  ))}
-</div>
+                {/* Dropdown Fields (Two Columns) */}
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { label: "Category", options: categories, name: "category" },
+                    { label: "Subcategory", options: subcategories.Women, name: "subcategory" },
+                    { label: "Color", options: colors, name: "color" },
+                    { label: "Fabric", options: fabrics, name: "fabric" },
+                    { label: "Occasion", options: occasions, name: "occasion" },
+                    { label: "Sleeve Type", options: sleeveTypes, name: "sleeveType" },
+                    { label: "Neckline", options: necklines, name: "neckline" },
+                    { label: "Fit Style", options: fitStyles, name: "fitStyle" },
+                    { label: "Pattern", options: patterns, name: "pattern" },
+                  ].map(({ label, options, name }) => (
+                    <div key={name} className="w-full">
+                      <label className="block text-sm font-medium text-gray-700">{label}</label>
+                      <select {...register(name as keyof FormData)} className="w-full p-2 border rounded-lg" defaultValue="">
+                        <option value="" disabled>Select {label}</option>
+                        {options.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                    </div>
+                  ))}
+                </div>
 
+                {/* Submit Button */}
+                <button type="submit" className="w-full bg-[#EA580B] py-2 rounded-lg text-white " disabled={uploading}>
+                  {uploading ? "Uploading..." : "Save"}
+                </button>
+                {message && <p className="text-center text-sm mt-2 text-red-500">{message}</p>}
+              </div>
 
-            {/* Submit Button */}
-            <button type="submit" className="w-full bg-[#EA580B] py-2 rounded-lg text-white " disabled={uploading}>
-              {uploading ? "Uploading..." : "Save"}
-            </button>
-            {message && <p className="text-center text-sm mt-2 text-red-500">{message}</p>}
+              {/* Image Preview */}
+              <div className="flex justify-center items-center border p-4 rounded-lg">
+                {previewUrl ? <img src={previewUrl} alt="Preview" className="max-w-full h-auto rounded-lg shadow-lg" /> : <p className="text-gray-400">No image selected</p>}
+              </div>
+
+            </form>
           </div>
+        </div>
 
-          {/* Image Preview */}
-          <div className="flex justify-center items-center border p-4 rounded-lg">
-            {previewUrl ? <img src={previewUrl} alt="Preview" className="max-w-full h-auto rounded-lg shadow-lg" /> : <p className="text-gray-400">No image selected</p>}
-          </div>
-        </form>
-      </div>
-    </div>
   );
 }

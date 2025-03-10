@@ -5,16 +5,14 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
 import Filter from "../components/ui/filter";
-import dresses from "../components/extra/dresses";
-import dressSuggestions from "../components/extra/dress_suggest";
 import PreviewModels from "../components/models/PreviewModels";
 
 const SearchContent = () => {
+    const [liked, setLiked] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialSearch = searchParams.get("query") || "";
   const [searchTerm, setSearchTerm] = useState(initialSearch);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [filters, setFilters] = useState({
     category: "",
     color: "",
@@ -24,37 +22,42 @@ const SearchContent = () => {
     fitStyle: "",
     pattern: "",
   });
-
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedFabric, setSelectedFabric] = useState<string | null>(null);
-  const [selectedSleeveType, setSelectedSleeveType] = useState<string | null>(null);
-  const [selectedOccasion, setSelectedOccasion] = useState<string | null>(null);
-  const [selectedFitStyle, setSelectedFitStyle] = useState<string | null>(null);
-  const [selectedPattern, setSelectedPattern] = useState<string | null>(null);
+  const [dresses, setDresses] = useState<Dress[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [selectedAlt, setSelectedAlt] = useState<string | null>(null);
-  const [selectedDesc, setSelectedDesc] = useState<string | null>(null);
+  const [selectedDress, setSelectedDress] = useState<Dress | null>(null);
+
+  interface Dress {
+    _id: string;
+    imageName: string;
+    imageDescription: string;
+    imageUrl: string;
+    category: string;
+    subcategory: string;
+    color: string;
+    fabric: string;
+    occasion: string;
+    sleeveType: string;
+    neckline: string;
+    fitStyle: string;
+    pattern: string;
+  }
 
   useEffect(() => {
-    if (searchTerm.trim().length > 0) {
-      setSuggestions(
-        dressSuggestions.filter((dress) =>
-          dress.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      );
-    } else {
-      setSuggestions([]);
-    }
+    const fetchDresses = async () => {
+      try {
+        const response = await fetch(`/api/dresses?q=${searchTerm}`);
+        const data = await response.json();
+        setDresses(data.results);
+      } catch (error) {
+        console.error("Error fetching dresses:", error);
+      }
+    };
+
+    fetchDresses();
   }, [searchTerm]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-  };
-
-  const handleSuggestionClick = (suggestion: string) => {
-    setSearchTerm(suggestion);
-    setSuggestions([]);
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -64,26 +67,8 @@ const SearchContent = () => {
     }
   };
 
-  const openModal = (
-    imgSrc: string,
-    imgAlt: string,
-    desc: string,
-    category: string,
-    fabric: string,
-    sleeveType: string,
-    occasion: string,
-    fitStyle: string,
-    pattern: string
-  ) => {
-    setSelectedImage(imgSrc);
-    setSelectedAlt(imgAlt);
-    setSelectedDesc(desc);
-    setSelectedCategory(category);
-    setSelectedFabric(fabric);
-    setSelectedSleeveType(sleeveType);
-    setSelectedOccasion(occasion);
-    setSelectedFitStyle(fitStyle);
-    setSelectedPattern(pattern);
+  const openModal = (dress: Dress) => {
+    setSelectedDress(dress);
     setIsModalOpen(true);
   };
 
@@ -91,25 +76,25 @@ const SearchContent = () => {
     setIsModalOpen(false);
   };
 
-  const handleFilterChange = (filterType: string, value: string) => {
-    if (filterType === "reset") {
-      setFilters({
-        category: "",
-        color: "",
-        fabric: "",
-        sleeveType: "",
-        occasion: "",
-        fitStyle: "",
-        pattern: "",
-      });
-    } else {
-      setFilters((prev) => ({ ...prev, [filterType]: value }));
-    }
+  const handleFilterChange = (filterType: keyof typeof filters, value: string) => {
+    setFilters((prev) => ({ ...prev, [filterType]: value }));
   };
 
-  const filteredDresses = dresses.filter((dress) => {
+  const handleResetFilters = () => {
+    setFilters({
+      category: "",
+      color: "",
+      fabric: "",
+      sleeveType: "",
+      occasion: "",
+      fitStyle: "",
+      pattern: "",
+    });
+  };
+
+  const filteredDresses: Dress[] = dresses.filter((dress: Dress) => {
     return (
-      dress.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      dress.imageName.toLowerCase().includes(searchTerm.toLowerCase()) &&
       (filters.category === "" || dress.category === filters.category) &&
       (filters.color === "" || dress.color === filters.color) &&
       (filters.fabric === "" || dress.fabric === filters.fabric) &&
@@ -122,95 +107,86 @@ const SearchContent = () => {
 
   return (
     <>
-      {/* Search Bar */}
+      <Header />
       <div className="fixed bg-white top-0 left-0 w-full mt-16 py-4 px-6 flex justify-center border-b z-40">
-        <div className="relative flex flex-1 items-center w-full max-w-[1200px]">
-          <form onSubmit={handleSearchSubmit} className="flex w-full">
-            <label className="flex flex-1 items-center gap-2 px-4 py-3.5 border-b rounded-full min-w-[296px] h-[54px] bg-white relative z-10">
-              <input
-                type="text"
-                placeholder="Search a Dress"
-                className="bg-transparent outline-none w-full text-black placeholder-black"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                onBlur={() => setTimeout(() => setSuggestions([]), 200)}
-              />
-            </label>
-            <button type="submit" className="ml-4 px-6 py-3 bg-black text-white rounded-lg hover:bg-zinc-700">
-              Search
-            </button>
-          </form>
-
-          {/* Suggestions dropdown */}
-          {suggestions.length > 0 && (
-            <ul className="absolute top-full left-0 w-full bg-white border rounded-lg shadow-md mt-2 z-50 max-h-52 overflow-y-auto">
-              {suggestions.map((suggestion, index) => (
-                <li
-                  key={index}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                  onMouseDown={() => handleSuggestionClick(suggestion)}
-                >
-                  {suggestion}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        <form onSubmit={handleSearchSubmit} className="flex w-full max-w-[1000px] mt-2">
+          <input
+            type="text"
+            placeholder="Search a Dress"
+            className="border p-2 flex-1 rounded-xl"
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+          <button type="submit" className="ml-2 px-4 py-2 bg-black text-white rounded-xl">
+            Search
+          </button>
+        </form>
       </div>
 
-      {/* Layout */}
-      <div className="mx-auto gap-10 flex mb-4">
-        {/* Sidebar Filter */}
-        <section className="text-headingchild text-md min-w-[24%] sticky top-[100px] h-screen mt-[150px] flex flex-col justify-between z-10 bg-white border-r p-6">
+      <div className="mx-auto gap-10 flex mb-4 mt-[150px]">
+        <section className="w-1/4 p-6">
           <Filter onFilterChange={handleFilterChange} />
+          <button className="mt-4 px-4 py-2 bg-black hover:bg-orange-600 text-white rounded-xl transition-all duration-600" onClick={handleResetFilters}>
+            Reset Filters
+          </button>
         </section>
 
-        {/* Dresses Grid */}
-        <section className="max-w-full mt-[140px] flex-1">
+
+        <section className="w-3/4 mt-4">
           {filteredDresses.length > 0 ? (
-            <div className="mt-8 grid grid-cols-4 gap-6">
+            <div className="grid grid-cols-4 gap-6">
               {filteredDresses.map((dress) => (
                 <div
-                  key={dress.id}
-                  className="w-full h-full hover:shadow-lg hover:rounded-2xl bg-white rounded-2xl cursor-pointer"
-                  onClick={() => openModal(
-                    dress.img,
-                    dress.name,
-                    dress.description,
-                    dress.category,
-                    dress.fabric,
-                    dress.sleeveType,
-                    dress.occasion,
-                    dress.fitStyle,
-                    dress.pattern
-                  )}
+                  key={dress._id}
+                  onClick={() => openModal(dress)}
+                  className="cursor-pointer p-2"
                 >
-                  <img src={dress.img} alt={dress.name} className="object-cover w-full h-auto p-4" />
+                   <div className="relative group">
+      <img
+        src={dress.imageUrl}
+        alt={dress.imageName}
+        className="w-full h-auto rounded-xl transition duration-300 ease-in-out group-hover:opacity-90"
+      />
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black bg-opacity-40 rounded-xl opacity-0 group-hover:opacity-100 transition duration-300"></div>
+
+      {/* Image Name on Hover */}
+      <div className="absolute bottom-5 left-2 text-white text-sm font-normal opacity-0 group-hover:opacity-100 transition duration-300">
+        {dress.imageName}
+      </div>
+
+  <button
+  onClick={() => setLiked(!liked)}
+  className="absolute top-4 right-4 flex items-center justify-center rounded-lg w-[35px] h-[30px] shadow-[0_0_60px_rgba(34,_34,_34,_0.25)] bg-white hover:bg-gray-200 text-black opacity-0 group-hover:opacity-100 transition duration-300 z-50"
+>
+  <img src="/icon/fav.svg" alt="like" className="w-5 h-5" />
+</button>
+    </div>
                 </div>
+
               ))}
             </div>
           ) : (
-            <div className="col-span-3 text-center text-gray-500 mt-10">No dresses found.</div>
+            <p className="mt-10 text-gray-500">No dresses found.</p>
           )}
         </section>
       </div>
 
-      {/* Preview Modal */}
-<PreviewModels
-  isOpen={isModalOpen}
-  onClose={closeModal}
-  imageSrc={selectedImage || ""}
-  imageAlt={selectedAlt || ""}
-  description={selectedDesc || ""}
-  category={selectedCategory || ""}
-  fabric={selectedFabric || ""}
-  sleeveType={selectedSleeveType || ""}
-  occasion={selectedOccasion || ""}
-  fitStyle={selectedFitStyle || ""}
-  pattern={selectedPattern || ""}
-/>
-
-
+      {selectedDress && (
+        <PreviewModels
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          imageSrc={selectedDress.imageUrl}
+          imageAlt={selectedDress.imageName}
+          description={selectedDress.imageDescription}
+          category={selectedDress.category}
+          fabric={selectedDress.fabric}
+          sleeveType={selectedDress.sleeveType}
+          occasion={selectedDress.occasion}
+          fitStyle={selectedDress.fitStyle}
+          pattern={selectedDress.pattern}
+        />
+      )}
       <Footer />
     </>
   );
@@ -218,11 +194,8 @@ const SearchContent = () => {
 
 export default function SearchPage() {
   return (
-    <>
-      <Header />
-      <Suspense fallback={<p>Loading...</p>}>
-        <SearchContent />
-      </Suspense>
-    </>
+    <Suspense fallback={<p>Loading...</p>}>
+      <SearchContent />
+    </Suspense>
   );
 }

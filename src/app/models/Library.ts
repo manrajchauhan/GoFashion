@@ -15,7 +15,7 @@ const LibrarySchema = new mongoose.Schema(
     fitStyle: { type: String, required: true },
     pattern: { type: String, required: true },
 
-    uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    uploadedBy: { type: String, required: true, ref: "User" },
   },
   { timestamps: true }
 );
