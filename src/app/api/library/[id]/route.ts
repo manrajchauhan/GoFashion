@@ -10,9 +10,15 @@ cloudinary.v2.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
+interface Context {
+  params: {
+    id: string;
+  };
+}
+
+export async function DELETE(req: NextRequest, context: Context) {
   try {
-    const { id } = context.params; // Corrected the way params are accessed
+    const { id } = context.params; // Corrected params access
 
     if (!id) {
       return NextResponse.json({ error: "Image ID is required" }, { status: 400 });
@@ -27,28 +33,16 @@ export async function DELETE(req: NextRequest, context: { params: { id: string }
       return NextResponse.json({ error: "Image not found" }, { status: 404 });
     }
 
-    // Log the image for debugging
-    console.log("Image found:", image);
-
     // Extract the public_id from the image URL
     const publicId = getPublicIdFromUrl(image.imageUrl);
     if (!publicId) {
       return NextResponse.json({ error: "Image does not have a valid public_id" }, { status: 400 });
     }
 
-    // Log the public_id for debugging
-    console.log("Extracted Cloudinary Public ID:", publicId);
-
-    // Attempt to delete the image from Cloudinary
-    const cloudinaryResponse = await cloudinary.v2.uploader.destroy(publicId, {
-      type: "upload",
-      resource_type: "image",
-    });
-
-    console.log("Cloudinary response:", cloudinaryResponse);
+    // Delete the image from Cloudinary
+    const cloudinaryResponse = await cloudinary.v2.uploader.destroy(publicId);
 
     if (cloudinaryResponse.result === "not found") {
-      console.error(`Cloudinary could not find image with public_id: ${publicId}`);
       return NextResponse.json({ error: "Image not found in Cloudinary" }, { status: 404 });
     }
 
@@ -65,16 +59,9 @@ export async function DELETE(req: NextRequest, context: { params: { id: string }
   }
 }
 
-// Utility function to extract the public_id from the image URL and remove file extension
+// Utility function to extract the public_id from the image URL
 const getPublicIdFromUrl = (url: string): string => {
-  const regex = /upload\/([^/]+)\/([^?]+)/; // Adjusted regex
+  const regex = /\/v\d+\/(.+?)\.[a-z]+$/; // Extracts public ID without extension
   const matches = url.match(regex);
-  if (matches && matches.length > 2) {
-    let publicId = matches[2]; // Extract the public_id
-    // Remove file extension (.jpg, .jpeg, .png, etc.)
-    publicId = publicId.replace(/\.[^/.]+$/, "");
-    return publicId;
-  }
-  console.error("Public ID not found in URL:", url);
-  return ""; // Return an empty string if no match is found
+  return matches ? matches[1] : "";
 };
