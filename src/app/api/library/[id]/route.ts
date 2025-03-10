@@ -10,9 +10,9 @@ cloudinary.v2.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
   try {
-    const { id } = params;
+    const { id } = context.params; // Corrected the way params are accessed
 
     if (!id) {
       return NextResponse.json({ error: "Image ID is required" }, { status: 400 });
@@ -21,7 +21,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     // Connect to DB
     await connectToDB();
 
-    // Find the image by id
+    // Find the image by ID
     const image = await ImageLibrary.findById(id);
     if (!image) {
       return NextResponse.json({ error: "Image not found" }, { status: 404 });
@@ -41,13 +41,13 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
     // Attempt to delete the image from Cloudinary
     const cloudinaryResponse = await cloudinary.v2.uploader.destroy(publicId, {
-      type: 'upload',
-      resource_type: 'image',
+      type: "upload",
+      resource_type: "image",
     });
 
     console.log("Cloudinary response:", cloudinaryResponse);
 
-    if (cloudinaryResponse.result === 'not found') {
+    if (cloudinaryResponse.result === "not found") {
       console.error(`Cloudinary could not find image with public_id: ${publicId}`);
       return NextResponse.json({ error: "Image not found in Cloudinary" }, { status: 404 });
     }
@@ -55,7 +55,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     // Delete the image from MongoDB
     await ImageLibrary.findByIdAndDelete(id);
 
-    return NextResponse.json({ message: "Image deleted successfully from Cloudinary and the database" }, { status: 200 });
+    return NextResponse.json(
+      { message: "Image deleted successfully from Cloudinary and the database" },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error deleting image:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -73,5 +76,5 @@ const getPublicIdFromUrl = (url: string): string => {
     return publicId;
   }
   console.error("Public ID not found in URL:", url);
-  return ''; // Return an empty string if no match is found
+  return ""; // Return an empty string if no match is found
 };
