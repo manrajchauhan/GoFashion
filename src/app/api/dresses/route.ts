@@ -4,28 +4,25 @@ import ImageLibrary from "@/app/models/Library";
 
 export async function GET(req: NextRequest) {
   try {
-    console.log("Connecting to MongoDB...");
-    await connectToDB();
-    console.log("Connected successfully!");
 
-    // Extract search query from request URL
+    await connectToDB();
+
     const { searchParams } = new URL(req.url);
     const query = searchParams.get("q") || "";
 
-    console.log("Query received:", query);
+    // console.log("Query received:", query);
 
-    // If no query, return all results sorted by latest
     if (!query.trim()) {
       const allResults = await ImageLibrary.find().sort({ createdAt: -1 });
       return NextResponse.json({ results: allResults }, { status: 200 });
     }
 
-    // Split query into multiple words (case-insensitive)
-    const queryWords = query.trim().split(/\s+/); // Split by spaces
 
-    console.log("Query words:", queryWords);
+    const queryWords = query.trim().split(/\s+/);
 
-    // Construct a flexible search filter
+    // console.log("Query words:", queryWords);
+
+
     const filter = {
       $or: queryWords.map((word) => ({
         $or: [
@@ -43,12 +40,12 @@ export async function GET(req: NextRequest) {
       })),
     };
 
-    console.log("Search filter:", JSON.stringify(filter, null, 2));
+    // console.log("Search filter:", JSON.stringify(filter, null, 2));
 
-    // Fetch matching results
+
     const results = await ImageLibrary.find(filter).sort({ createdAt: -1 });
 
-    console.log("Results found:", results.length);
+    // console.log("Results found:", results.length);
 
     return NextResponse.json({ results }, { status: 200 });
   } catch (error) {

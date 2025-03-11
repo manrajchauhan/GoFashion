@@ -1,6 +1,28 @@
-import React  from 'react'
+import axios from 'axios'
+import React, { useEffect }  from 'react'
+import { toast, ToastContainer } from 'react-toastify'
+
+interface ImageData {
+    _id: string;
+    client_id: string;
+    imageName: string;
+    imageDescription: string;
+    imageUrl: string;
+    category: string;
+    subcategory: string;
+    color: string;
+    fabric: string;
+    occasion: string;
+    sleeveType: string;
+    neckline: string;
+    fitStyle: string;
+    pattern: string;
+    createdAt: string;
+  }
+
 
 const DemoImgs = {
+
   img1:{
     img: '/Random/gorgeous-woman-with-blonde-wavy-hair-wearing-elegant-beige-dress.jpg',
     name: 'Women - Gorgeous',
@@ -24,9 +46,12 @@ const DemoImgs = {
   },
 }
 
+
+
 export default function FavouritePage() {
   return (
     <div className="p-6 w-full bg-white rounded-2xl max-md:px-4 max-md:max-w-full mt-4 min-h-screen">
+    <ToastContainer/>
       <h1 className="text-4xl font-bold text-neutral-700 mb-6 tracking-tighter">Favourites</h1>
       <div className="flex flex-wrap gap-4">
        Top Picks From You.

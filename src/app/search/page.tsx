@@ -6,6 +6,9 @@ import Header from "../components/Header/Header";
 import Footer from "../components/Footer/Footer";
 import Filter from "../components/ui/filter";
 import PreviewModels from "../components/models/PreviewModels";
+import Image from "next/image";
+
+
 
 const SearchContent = () => {
     const [liked, setLiked] = useState(false);
@@ -48,10 +51,12 @@ const SearchContent = () => {
         const response = await fetch(`/api/dresses?q=${searchTerm}`);
         const data = await response.json();
         setDresses(data.results);
+        // console.log(data.results);
       } catch (error) {
         console.error("Error fetching dresses:", error);
       }
     };
+
 
     fetchDresses();
   }, [searchTerm]);
@@ -133,37 +138,32 @@ const SearchContent = () => {
 
 
         <section className="w-3/4 mt-4">
-          {filteredDresses.length > 0 ? (
+          {filteredDresses && filteredDresses.length > 0 ? (
             <div className="grid grid-cols-4 gap-6">
-              {filteredDresses.map((dress) => (
+              {filteredDresses.map((dress: Dress) => (
                 <div
                   key={dress._id}
                   onClick={() => openModal(dress)}
                   className="cursor-pointer p-2"
                 >
-                   <div className="relative group">
-      <img
-        src={dress.imageUrl}
-        alt={dress.imageName}
-        className="w-full h-auto rounded-xl transition duration-300 ease-in-out group-hover:opacity-90"
-      />
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black bg-opacity-40 rounded-xl opacity-0 group-hover:opacity-100 transition duration-300"></div>
-
-      {/* Image Name on Hover */}
-      <div className="absolute bottom-5 left-2 text-white text-sm font-normal opacity-0 group-hover:opacity-100 transition duration-300">
-        {dress.imageName}
-      </div>
-
-  <button
-  onClick={() => setLiked(!liked)}
-  className="absolute top-4 right-4 flex items-center justify-center rounded-lg w-[35px] h-[30px] shadow-[0_0_60px_rgba(34,_34,_34,_0.25)] bg-white hover:bg-gray-200 text-black opacity-0 group-hover:opacity-100 transition duration-300 z-50"
->
-  <img src="/icon/fav.svg" alt="like" className="w-5 h-5" />
-</button>
-    </div>
+                  <div className="relative group">
+                    <img
+                      src={dress.imageUrl}
+                      alt={dress.imageName}
+                      className="w-full h-auto rounded-xl transition duration-300 ease-in-out group-hover:opacity-90"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-40 rounded-xl opacity-0 group-hover:opacity-100 transition duration-300"></div>
+                    <div className="absolute bottom-5 left-2 text-white text-sm font-normal opacity-0 group-hover:opacity-100 transition duration-300">
+                      {dress.imageName}
+                    </div>
+                    <button
+                      onClick={() => setLiked(!liked)}
+                      className="absolute top-4 right-4 flex items-center justify-center rounded-lg w-[35px] h-[30px] shadow-[0_0_60px_rgba(34,_34,_34,_0.25)] bg-white hover:bg-gray-200 text-black opacity-0 group-hover:opacity-100 transition duration-300 "
+                    >
+                      <img src="/icon/fav.svg" alt="like" className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
-
               ))}
             </div>
           ) : (
@@ -194,7 +194,15 @@ const SearchContent = () => {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<p>Loading...</p>}>
+    <Suspense fallback={
+        <Image
+        className="animate-spin duration-200"
+        src={"/icon/loader.svg"}
+        alt="loader"
+        width={40}
+        height={40}
+        />
+    }>
       <SearchContent />
     </Suspense>
   );
