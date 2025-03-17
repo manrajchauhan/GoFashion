@@ -1,72 +1,134 @@
-import axios from 'axios'
-import React, { useEffect }  from 'react'
-import { toast, ToastContainer } from 'react-toastify'
+"use client";
+
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface ImageData {
-    _id: string;
-    client_id: string;
-    imageName: string;
-    imageDescription: string;
-    imageUrl: string;
-    category: string;
-    subcategory: string;
-    color: string;
-    fabric: string;
-    occasion: string;
-    sleeveType: string;
-    neckline: string;
-    fitStyle: string;
-    pattern: string;
-    createdAt: string;
-  }
-
-
-const DemoImgs = {
-
-  img1:{
-    img: '/Random/gorgeous-woman-with-blonde-wavy-hair-wearing-elegant-beige-dress.jpg',
-    name: 'Women - Gorgeous',
-    description: 'Liked on 12/12/2021',
-  },
-
-  img2:{
-    img: '/Random/demo1.jpg',
-    name: 'Men - Gorgeous',
-    description: 'Liked on 12/12/2021',
-  },
-  img3:{
-    img: '/Random/full-length-portrait-confident-young-man.jpg',
-    name: 'Gorgeous',
-    description: 'Liked on 12/12/2021',
-  },
-  img4:{
-    img: '/Random/young-woman-beautiful-red-dress.jpg',
-    name: 'Gorgeous',
-    description: 'Liked on 12/12/2021',
-  },
+  _id: string;
+  client_id: string;
+  imageName: string;
+  imageDescription: string;
+  imageUrl: string;
+  createdAt: string;
 }
 
-
-
 export default function FavouritePage() {
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [clientId, setClientId] = useState<string | null>(null);
+  const [favourites, setFavourites] = useState<ImageData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      setAuthToken(token);
+    } else {
+      setError("Please log in to view favorites.");
+    }
+  }, []);
+
+
+  useEffect(() => {
+    if (!authToken) return;
+
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get("/api/users", {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+        setClientId(response.data.user.client_id);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setError("Failed to fetch user data.");
+      }
+    };
+
+    fetchUserData();
+  }, [authToken]);
+
+
+  useEffect(() => {
+    if (!authToken || !clientId) return;
+
+    const fetchFavourites = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`/api/favourites?client_id=${clientId}`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+
+        if (response.status === 200) {
+          setFavourites(response.data.favourites);
+        }
+      } catch (error) {
+        console.error("Error fetching favourites:", error);
+        setError("Failed to load favourites.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFavourites();
+  }, [authToken, clientId]);
+
+
+  const handleRemoveFavourite = async (imageId: string) => {
+    try {
+        await axios.delete("/api/favourites/delete", {
+            headers: { Authorization: `Bearer ${authToken}` },
+            data: { imageUrl: favourites.find((img) => img._id === imageId)?.imageUrl },
+          });
+
+      setFavourites(favourites.filter((img) => img._id !== imageId));
+      toast.info("Removed from favourites.");
+    } catch (error) {
+      console.error("Error removing favourite:", error);
+      toast.error("Failed to remove from favourites.");
+    }
+  };
+
   return (
-    <div className="p-6 w-full bg-white rounded-2xl max-md:px-4 max-md:max-w-full mt-4 min-h-screen">
-    <ToastContainer/>
-      <h1 className="text-4xl font-bold text-neutral-700 mb-6 tracking-tighter">Favourites</h1>
-      <div className="flex flex-wrap gap-4">
-       Top Picks From You.
-        </div>
-        <div className='flex flex-cols-3 gap-4 mt-10'>
-            {Object.values(DemoImgs).map((imgs,index) => (
- <div className='h-80 w-full' key={index}>
- <img src={imgs.img} alt="random Clicks" className='object-cover w-[800px] h-80 p-4 rounded-[20px] hover:scale-105 transition-all duration-200' />
-    <div className='flex-row mt-4 px-4'>
-    <h1 className='text-sm font-semibold text-neutral-700'>{imgs.name}</h1>
-    <p className='text-sm text-neutral-500'>{imgs.description}</p>
-    </div>
-</div>      )
-            )}
+    <div className="p-6 w-full bg-gray-50 min-h-screen">
+      <ToastContainer />
+      <h1 className="text-3xl font-bold text-neutral-800 mb-6 tracking-tight">My Favourites</h1>
+
+      {loading && <p className="text-gray-500 text-center">Loading favourites...</p>}
+      {error && <p className="text-red-500 text-center">{error}</p>}
+      {!loading && favourites.length === 0 && <p className="text-gray-500 text-center">No favourites found.</p>}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-10">
+        {favourites.map((image) => (
+          <div key={image._id} className="relative group bg-white shadow-lg rounded-2xl overflow-hidden transition-transform hover:scale-105">
+            <img
+              src={image.imageUrl}
+              alt={image.imageName}
+              className="w-full h-64 object-cover rounded-2xl"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80 rounded-2xl"></div>
+
+            <div className="absolute bottom-4 left-4 text-white">
+              <h2 className="text-sm capitalize font-semibold">{image.imageName}</h2>
+              {/* <p className="text-sm text-gray-300">{image.imageDescription}</p> */}
             </div>
+
+
+            <button
+              onClick={() => handleRemoveFavourite(image._id)}
+              className="absolute top-4 right-4 flex items-center justify-center rounded-full w-10 h-10 bg-white hover:bg-gray-200 transition-all shadow-md"
+            >
+                <img
+                src={"/icon/fav-filled.svg"}
+                alt="like"
+                className="w-5 h-5"
+                />
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
-  )
+  );
 }

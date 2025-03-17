@@ -1,11 +1,43 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import UserModel from "../models/UserModel";
 import Link from "next/link";
 import Image from "next/image";
+import axios from "axios";
 
 export default function DasHeader() {
+
+      const [authToken, setAuthToken] = useState<string | null>(null);
+      const [userData, setUserData] = useState<any>(null);
+      const [error, setError] = useState<string | null>(null);
+
+      const superuser = "m900413089@gmail.com";
+
+      useEffect(() => {
+        const token = localStorage.getItem("authToken");
+        setAuthToken(token);
+      }, []);
+
+      useEffect(() => {
+        if (authToken) {
+          const fetchUserData = async () => {
+            try {
+              const response = await axios.get('/api/users', {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                },
+              });
+              const user = response.data.user;
+              setUserData(user);
+        } catch (fetchError: any) {
+          setError('Failed to fetch user data');
+          console.error('Error fetching user data:', fetchError.response?.data || fetchError.message);
+        }
+      };
+          fetchUserData();
+        }
+      }, [authToken]);
 
     const [isSettingsModalOpen, setSettingsModalOpen] = useState(false);
 
@@ -58,13 +90,17 @@ export default function DasHeader() {
         </div>
 
         <ul className="ml-auto flex gap-7 py-2">
-        <Link href="/user/upload" className="bg-orange-100 px-4 hover:bg-orange-50 mt-2 rounded-xl flex gap-2 items-center">
-        <img src="/upload.svg" alt="Upload" className="w-6 h-6"/>
-            <button>
-                <h1>Upload</h1>
-            </button>
-            </Link>
 
+        {authToken && userData?.email === superuser && (
+  <>
+    <Link href="/user/upload" className="bg-orange-100 px-4 hover:bg-orange-50 mt-2 rounded-xl flex gap-2 items-center">
+      <img src="/upload.svg" alt="Upload" className="w-6 h-6"/>
+      <button>
+        <h1>Upload</h1>
+      </button>
+    </Link>
+  </>
+)}
           <li className="mt-2 cursor-pointer" id="userIcon"onClick={toggleSettingsModal}>
           <img
                         width={40}

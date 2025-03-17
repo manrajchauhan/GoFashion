@@ -10,11 +10,9 @@ interface User {
   client_id: string;
 }
 
-
 const links = [
   { name: 'Dashboard', href: '/user/dashboard', icon: '/icon/dash.svg' },
   { name: 'Settings', href: '/user/settings', icon: '/icon/settings.svg' },
-  { name: 'Trash', href: '/user/trash', icon: '/icon/trash.svg' },
   { name: 'Homepage', href: '/', icon: '/icon/home.svg' },
 
 ];

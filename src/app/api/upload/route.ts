@@ -18,13 +18,12 @@ export async function POST(req: NextRequest) {
   try {
     await connectToDB();
 
-    // 🔹 Extract and Verify Token
     const token = req.headers.get("authorization")?.split(" ")[1];
     if (!token) {
       return NextResponse.json({ error: "Unauthorized: No token provided" }, { status: 401 });
     }
 
-    // 🔹 Decode Token and Find User
+
     let user;
     try {
       const decoded = jwt.verify(token, secretKey!) as { email: string };
@@ -37,7 +36,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
     }
 
-    // 🔹 Parse Incoming Form Data
     const formData = await req.formData();
     const file = formData.get("file") as File;
 
@@ -45,7 +43,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-    // 🔹 Convert File to Base64
+
     const reader = file.stream().getReader();
     const chunks: Uint8Array[] = [];
     let done = false;
@@ -59,7 +57,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.concat(chunks);
     const base64String = `data:${file.type};base64,${buffer.toString("base64")}`;
 
-    // 🔹 Upload to Cloudinary
+
     const uploadResponse = await cloudinary.v2.uploader.upload(base64String, {
       folder: "gofashion",
     });
@@ -68,7 +66,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Cloudinary upload failed" }, { status: 500 });
     }
 
-    // 🔹 Extract Form Fields
+
     const imageName = formData.get("imageName") as string;
     const imageDescription = formData.get("imageDescription") as string;
     const category = formData.get("category") as string;
@@ -81,17 +79,15 @@ export async function POST(req: NextRequest) {
     const fitStyle = formData.get("fitStyle") as string;
     const pattern = formData.get("pattern") as string;
 
-    // ✅ Ensure Required Fields are Present
+
     if (!imageName || !imageDescription || !category) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // ✅ Ensure `client_id` is a Valid ObjectId
     if (!user.client_id || !mongoose.Types.ObjectId.isValid(user.client_id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    // ✅ Save Image Details in MongoDB
     const newImage = new ImageLibrary({
       imageName,
       imageDescription,

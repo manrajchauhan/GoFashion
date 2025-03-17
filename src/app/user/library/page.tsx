@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/navigation";
 
 interface ImageData {
   _id: string;
@@ -19,6 +20,42 @@ export default function LibraryPage() {
   const [images, setImages] = useState<ImageData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userData, setUserData] = useState<any | null>(null);
+  const [authToken, setAuthToken] = useState<string | null>(null);
+
+  const SUPERUSER_EMAIL = "m900413089@gmail.com";
+  const router = useRouter();
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      router.push("/user/dashboard");
+      return;
+    }
+
+    setAuthToken(token);
+
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get("/api/users", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const user = response.data.user;
+        setUserData(user);
+
+        if (user?.email !== SUPERUSER_EMAIL) {
+          router.push("/user/dashboard");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        router.push("/user/dashboard");
+      }
+    };
+
+    fetchUserData();
+  }, [router]);
+
+
 
   useEffect(() => {
     const fetchImages = async () => {

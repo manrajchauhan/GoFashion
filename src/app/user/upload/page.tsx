@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { useRouter } from "next/navigation";
 
 interface FormData {
   category: string;
@@ -41,44 +41,42 @@ export default function AddImagePage() {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [clientId, setClientId] = useState<string | null>(null);
-
-  // 🔹 Authentication State
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const SUPERUSER_EMAIL = "m900413089@gmail.com";
+  const router = useRouter();
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-    if (token) {
-      setAuthToken(token);
+    if (!token) {
+      router.push("/user/dashboard");
+      return;
     }
-  }, []);
 
-  useEffect(() => {
-    if (authToken) {
-      const fetchUserData = async () => {
-        setLoading(true);
-        try {
-          const response = await axios.get("/api/users", {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
-          });
-          setUserData(response.data.user);
-        } catch (fetchError: any) {
-          setError("Failed to fetch user data");
-          console.error("Error fetching user data:", fetchError.message);
-        } finally {
-          setLoading(false);
+    setAuthToken(token);
+
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get("/api/users", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const user = response.data.user;
+        setUserData(user);
+
+        if (user?.email !== SUPERUSER_EMAIL) {
+          router.push("/user/dashboard");
         }
-      };
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        router.push("/user/dashboard");
+      }
+    };
 
-      fetchUserData();
-    }
-  }, [authToken]);
+    fetchUserData();
+  }, [router]);
 
-  // ✅ Set clientId when userData is available
   useEffect(() => {
     if (userData && userData.client_id) {
       setClientId(userData.client_id);

@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
-const LibrarySchema = new mongoose.Schema(
+const FavouriteSchema = new mongoose.Schema(
   {
     client_id: {type: String, required: true},
-    imageName: { type: String, required: true, unique: true },
+    imageName: { type: String, required: true},
     imageDescription: { type: String, required: true },
     imageUrl: { type: String, required: true },
     category: { type: String, required: true },
@@ -19,5 +19,5 @@ const LibrarySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Favourite = mongoose.models.Favourite || mongoose.model("Favourite", LibrarySchema);
+const Favourite = mongoose.models.Favourite || mongoose.model("Favourite", FavouriteSchema);
 export default Favourite;
