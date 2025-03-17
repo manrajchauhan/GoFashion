@@ -13,7 +13,7 @@ import axios from "axios";
 
 
 const SearchContent = () => {
-    const [likedItems, setLikedItems] = useState<string[]>([]);
+    const [likedItems, setLikedItems] = useState<Record<string, boolean>>({});
     const searchParams = useSearchParams();
     const router = useRouter();
     const initialSearch = searchParams.get("query") || "";
@@ -197,8 +197,7 @@ const SearchContent = () => {
       toast.error("Please log in to add to favorites.");
       return;
     }
-
-    const isAlreadyLiked = likedItems[dress.imageUrl];
+     const isAlreadyLiked = likedItems[dress.imageUrl];
 
     try {
       if (isAlreadyLiked) {
