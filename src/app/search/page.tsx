@@ -10,7 +10,7 @@ import Image from "next/image";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-
+import { Dress } from "@/app/utils/types";
 
 const SearchContent = () => {
     const [likedItems, setLikedItems] = useState<Record<string, boolean>>({});
@@ -106,29 +106,11 @@ const SearchContent = () => {
     );
   });
 
-  interface Dress {
-    _id: string;
-    imageName: string;
-    imageDescription: string;
-    imageUrl: string;
-    category: string;
-    subcategory: string;
-    color: string;
-    fabric: string;
-    occasion: string;
-    sleeveType: string;
-    neckline: string;
-    fitStyle: string;
-    pattern: string;
-  }
-
-  // ✅ Fetch Auth Token
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (token) setAuthToken(token);
   }, []);
 
-  // ✅ Fetch User Data
   useEffect(() => {
     if (authToken) {
       const fetchUserData = async () => {
@@ -150,7 +132,6 @@ const SearchContent = () => {
     }
   }, [authToken]);
 
-  // ✅ Fetch Dresses When Search Term or Filters Change
   useEffect(() => {
     const fetchDresses = async () => {
       try {
@@ -163,7 +144,7 @@ const SearchContent = () => {
     };
 
     fetchDresses();
-  }, [searchTerm, filters]); // 🔥 Runs when search or filters change
+  }, [searchTerm, filters]);
 
   useEffect(() => {
     const fetchLikedItems = async () => {
@@ -176,11 +157,11 @@ const SearchContent = () => {
 
         if (response.status === 200) {
           const likedMap = response.data.favourites.reduce((acc: Record<string, boolean>, item: any) => {
-            acc[item.imageUrl] = true; // Store liked items in an object for O(1) lookup
+            acc[item.imageUrl] = true;
             return acc;
           }, {});
 
-          setLikedItems(likedMap); // ✅ Set state as an object
+          setLikedItems(likedMap);
         }
       } catch (error) {
         console.error("Error fetching favorite items:", error);
@@ -190,8 +171,6 @@ const SearchContent = () => {
     fetchLikedItems();
   }, [authToken, clientId]);
 
-
-  // ✅ Handle Like Button Click (Toggle Like/Unlike)
   const handleLike = async (dress: Dress) => {
     if (!authToken || !clientId) {
       toast.error("Please log in to add to favorites.");
@@ -201,7 +180,7 @@ const SearchContent = () => {
 
     try {
       if (isAlreadyLiked) {
-        // 🔹 Remove from favorites
+
         await axios.delete("/api/favourites/delete", {
             headers: { Authorization: `Bearer ${authToken}` },
             data: { imageUrl: dress.imageUrl },
@@ -215,7 +194,7 @@ const SearchContent = () => {
 
         toast.info("Removed from favourites.");
       } else {
-        // 🔹 Add to favorites
+
         await axios.post(
             "/api/favourites/add",
             {
@@ -269,13 +248,12 @@ const SearchContent = () => {
       </div>
 
       <div className="mx-auto gap-10 flex mb-4 mt-[150px]">
-        <section className="w-1/4 p-6">
+      <section className="w-1/4 p-6">
           <Filter onFilterChange={handleFilterChange} />
           <button className="mt-4 px-4 py-2 bg-black hover:bg-orange-600 text-white rounded-xl transition-all duration-600" onClick={handleResetFilters}>
             Reset Filters
           </button>
         </section>
-
         <section className="w-3/4 mt-4">
         {dresses && filteredDresses.length > 0 ? (
             <div className="grid grid-cols-4 gap-6">

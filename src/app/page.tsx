@@ -9,15 +9,15 @@ import RandomScroll from "./components/ui/random";
 
 export default function Home() {
   return (
-<>
-<Header/>
-<Hero/>
-<AppDemo/>
-<DragCards/>
-<RandomScroll/>
-<HowWorks/>
-<About/>
-<Footer/>
-</>
+        <>
+        <Header/>
+        <Hero/>
+        <AppDemo/>
+        <DragCards/>
+        <RandomScroll/>
+        <HowWorks/>
+        <About/>
+        <Footer/>
+        </>
   );
 }

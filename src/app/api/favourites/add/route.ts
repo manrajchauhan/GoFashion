@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectToDB();
 
-    // 🔹 Extract and Verify Token
+
     const token = req.headers.get("authorization")?.split(" ")[1];
     if (!token) {
       return NextResponse.json({ error: "Unauthorized: No token provided" }, { status: 401 });
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
     }
 
-    // 🔹 Parse Incoming JSON Data
+
     const {
       imageUrl,
       imageName,
@@ -45,17 +45,17 @@ export async function POST(req: NextRequest) {
       pattern,
     } = await req.json();
 
-    // 🔹 Validate Required Fields
+
     if (!imageUrl || !imageName || !category) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // 🔹 Validate `client_id`
+
     if (!user.client_id || !mongoose.Types.ObjectId.isValid(user.client_id)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
     }
 
-    // 🔹 Check if the image is already in favourites for the same `client_id`
+
     const existingFavourite = await Favourite.findOne({
       client_id: user.client_id,
       imageUrl: imageUrl,
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 🔹 Add to Favourites
+
     const newFavourite = new Favourite({
       client_id: user.client_id,
       imageName,
